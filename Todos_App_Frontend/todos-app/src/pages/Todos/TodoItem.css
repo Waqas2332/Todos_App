@@ -1,0 +1,20 @@
+.todo {
+  color: black;
+  background-color: white;
+  margin-top: 20px;
+  width: 400px;
+  height: 10vh;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  /* justify-content: space-around; */
+}
+.todo li {
+  margin-left: 40px;
+  list-style: none;
+  justify-self: flex-start;
+}
+.actions {
+  margin-left: auto;
+  margin-right: 10px;
+}
