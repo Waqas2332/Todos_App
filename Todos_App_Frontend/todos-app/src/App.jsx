@@ -6,8 +6,19 @@ import Login from "./pages/Login";
 import AddTodo from "./pages/Todos/AddTodo";
 import AllTodos from "./pages/Todos/AllTodos";
 import EditTodo from "./pages/Todos/EditTodo";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { login } from "./store/auth-slice";
+import DashBoard from "./pages/DashBoard";
 
 const App = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      dispatch(login(token));
+    }
+  }, []);
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
@@ -17,6 +28,7 @@ const App = () => {
       <Route path="/add-todo" element={<AddTodo />} />
       <Route path="/all-todos" element={<AllTodos />} />
       <Route path="/edit-todo/:id" element={<EditTodo />} />
+      <Route path="/dashboard" element={<DashBoard />} />
     </Routes>
   );
 };

@@ -2,9 +2,16 @@ import { useState } from "react";
 import axios from "axios";
 import Nav from "../components/Nav";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { login } from "../store/auth-slice";
+import { useDispatch } from "react-redux";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState("");
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -13,6 +20,7 @@ const Login = () => {
       password,
     };
     try {
+      setIsLoading(true);
       const response = await axios.post(
         "http://localhost:3000/user/signin",
         user,
@@ -24,13 +32,24 @@ const Login = () => {
         }
       );
       if (response.data) {
-        localStorage.setItem("user", response.data._id);
+        setIsLoading(false);
+        dispatch(login(response.data.token));
+        localStorage.setItem("token", response.data.token);
         navigate("/welcome", { replace: true });
-      } else {
-        alert(response.data);
       }
     } catch (error) {
-      console.log(error);
+      if (error.response.status === 401) {
+        setIsLoading(true);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: error.response.data.message,
+          allowHtml: true,
+          allowOutsideClick: true,
+          allowEscapeKey: true,
+          allowEnterKey: true,
+        });
+      }
     }
   };
   return (
@@ -64,7 +83,15 @@ const Login = () => {
           />
         </div>
         <button className="btn btn-primary">
-          <Link className="text-decoration-none text-white">Sign In</Link>
+          <Link className="text-decoration-none text-white">
+            {isLoading ? (
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : (
+              "Sign In"
+            )}
+          </Link>
         </button>
       </form>
     </div>

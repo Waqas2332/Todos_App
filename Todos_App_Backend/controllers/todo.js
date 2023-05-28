@@ -1,7 +1,9 @@
 const Todo = require("../models/todos");
+const User = require("../models/user");
+
 exports.addTodo = (req, res, next) => {
   const description = req.body.description;
-  const user = req.user;
+  const user = req.userId;
   const todoData = {
     description,
     user,
@@ -9,8 +11,14 @@ exports.addTodo = (req, res, next) => {
   const newTodo = new Todo(todoData);
   newTodo
     .save()
-    .then(() => {
-      return res.send("Todo Added SuccuessFully");
+    .then((result) => {
+      return User.findById(req.userId);
+    })
+    .then((user) => {
+      user.todos.push(newTodo);
+      res
+        .status(201)
+        .json({ message: "Post Created Successfully", todo: newTodo });
     })
     .catch((err) => {
       console.log(err);
@@ -18,7 +26,7 @@ exports.addTodo = (req, res, next) => {
 };
 
 exports.getAllTodos = (req, res, next) => {
-  Todo.find().then((todos) => {
+  Todo.find({ user: req.userId }).then((todos) => {
     res.json(todos);
   });
 };

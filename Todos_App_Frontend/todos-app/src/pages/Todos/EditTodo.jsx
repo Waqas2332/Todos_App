@@ -1,29 +1,38 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 function EditTodo() {
   const id = useParams();
   const [todo, setTodo] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const todosData = {
         description: todo,
         user: localStorage.getItem("user"),
       };
       const response = await axios.put(
         `http://localhost:3000/todos/todo/${id.id}`,
-        todosData
+        todosData,
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
       );
-      console.log(response.data);
       if (response.data === "Todo Edited Successfully") {
+        setIsLoading(false);
         navigate("/welcome", { replace: true });
         setTodo("");
       }
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
     }
   };
   return (
@@ -47,7 +56,15 @@ function EditTodo() {
           />
         </div>
         <button className="btn btn-primary">
-          <Link className="text-white text-decoration-none">Edit Todo</Link>
+          <Link className="text-white text-decoration-none">
+            {isLoading ? (
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : (
+              "Edit Todo"
+            )}
+          </Link>
         </button>
       </form>
     </main>

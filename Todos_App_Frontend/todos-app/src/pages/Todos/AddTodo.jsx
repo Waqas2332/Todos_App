@@ -5,20 +5,27 @@ import Nav from "../../components/Nav";
 
 const AddTodo = () => {
   const [todo, setTodo] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const todosData = {
         description: todo,
         user: localStorage.getItem("user"),
       };
       const response = await axios.post(
         "http://localhost:3000/add-todo",
-        todosData
+        todosData,
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
       );
-      console.log(response.data);
-      if (response.data === "Todo Added SuccuessFully") {
+      if (response.status === 201) {
+        setIsLoading(false);
         navigate("/welcome", { replace: true });
         setTodo("");
       }
@@ -48,7 +55,15 @@ const AddTodo = () => {
           />
         </div>
         <button className="btn btn-primary">
-          <Link className="text-white text-decoration-none">Add Todo</Link>
+          <Link className="text-white text-decoration-none">
+            {isLoading ? (
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : (
+              "Add Todo"
+            )}
+          </Link>
         </button>
       </form>
     </div>

@@ -2,6 +2,8 @@ import { useState } from "react";
 import Nav from "../components/Nav";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
 
 const Register = () => {
   const [firstName, setFirstName] = useState("");
@@ -9,7 +11,9 @@ const Register = () => {
   const [age, setAge] = useState(0);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     const user = {
@@ -20,6 +24,7 @@ const Register = () => {
       password,
     };
     try {
+      setIsLoading(true);
       const response = await axios.post(
         "http://localhost:3000/user/register",
         user,
@@ -30,11 +35,18 @@ const Register = () => {
           },
         }
       );
-
-      alert(response.data);
-      navigate("/welcome", { replace: true });
+      setIsLoading(false);
+      navigate("/signin", { replace: true });
     } catch (error) {
-      console.log(error);
+      if (error.response.status === 409) {
+        setIsLoading(false);
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "User Already Exists",
+          footer: '<a href="">Try using different Email</a>',
+        });
+      }
     }
   };
   return (
@@ -107,7 +119,15 @@ const Register = () => {
           />
         </div>
         <button className="btn btn-primary">
-          <Link className="text-white text-decoration-none">Register</Link>
+          <Link className="text-white text-decoration-none">
+            {isLoading ? (
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : (
+              "Register"
+            )}
+          </Link>
         </button>
         {/* <div className="mb-3">
           <label htmlFor="exampleFormControlTextarea1" className="form-label">

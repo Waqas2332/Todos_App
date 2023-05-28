@@ -1,5 +1,7 @@
 const User = require("../models/user");
 const bycrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 exports.userRegister = async (req, res, next) => {
   const firstName = req.body.firstName;
   const lastName = req.body.lastName;
@@ -23,9 +25,8 @@ exports.userRegister = async (req, res, next) => {
           const regUser = new User(newUser);
           regUser
             .save()
-            .then(() => {
-              console.log("User Saved");
-              res.send("User Added Successfully");
+            .then((result) => {
+              res.json({ message: "User Created", userId: result._id });
             })
             .catch((err) => {
               console.log(err);
@@ -33,10 +34,10 @@ exports.userRegister = async (req, res, next) => {
         }
       });
     } else {
-      res.send("User Already Exists");
+      res.status(409).json({ message: "User Alreay Exists" });
     }
   } catch (error) {
-    console.log(error);
+    res.status(400).json({ message: error });
   }
 };
 
@@ -46,15 +47,48 @@ exports.signIn = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: email });
     if (!user) {
-      return res.send(false);
+      res.status(401).json({ message: "User Doesn't Exists" });
     }
     const passwordMatch = await bycrypt.compare(password, user.password);
-    console.log(passwordMatch);
     if (!passwordMatch) {
-      return res.send(false);
+      return res.status(401).json({ message: "Password Didn't Match" });
     }
-    return res.json(user);
+    const token = jwt.sign(
+      { email: user.email, userId: user._id.toString() },
+      "secretKey",
+      { expiresIn: "1h" }
+    );
+    res.json({ token: token, userId: user._id.toString() });
   } catch (error) {
     console.log(error);
   }
+};
+
+exports.getUserData = (req, res, next) => {
+  User.findById(req.userId)
+    .then((user) => {
+      const newUser = {
+        ...user._doc,
+        imageUrl: `http://localhost:3000/${user.imageUrl}`,
+      };
+
+      res.status(201).json(newUser);
+    })
+    .catch((err) => res.json({ message: err.message }));
+};
+
+exports.postUploadImage = (req, res, next) => {
+  const image = req.file;
+  if (!image) {
+    res.status(422).json({ message: "Image Not Provided" });
+  }
+  const imageUrl = image.path;
+  User.findById(req.userId)
+    .then((user) => {
+      user.imageUrl = imageUrl;
+      user.save();
+    })
+    .then(() => {
+      res.status(201).json({ message: "Image Stored Successfully" });
+    });
 };

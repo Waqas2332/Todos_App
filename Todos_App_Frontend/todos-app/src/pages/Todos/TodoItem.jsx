@@ -3,22 +3,36 @@ import { AiFillDelete } from "react-icons/ai";
 import { BsPencilSquare } from "react-icons/bs";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
-import EditTodo from "./EditTodo";
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { deleteItem } from "../../store/todo.slice";
+import { useDispatch } from "react-redux";
 
 const TodoItem = (props) => {
-  const [editTodo, setEditTodo] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const handleDeleteTodo = async () => {
-    const conf = confirm("Are you Sure You Want To Delete ?");
-    if (conf) {
-      const response = await axios.delete(
-        `http://localhost:3000/todos/todo/${props.id}`
-      );
-      console.log(response.data);
-    } else {
-      return;
-    }
+  const handleDeleteTodo = () => {
+    Swal.fire({
+      title: "Confirm ? ",
+      text: "Do You Want to Delete Your Todo",
+      icon: "question",
+      showCancelButton: true,
+      showConfirmButton: true,
+      cancelButtonText: "No",
+      confirmButtonText: "Yes",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const response = axios.delete(
+          `http://localhost:3000/todos/todo/${props.id}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }
+        );
+        dispatch(deleteItem(props.id));
+      }
+    });
   };
   const handleEditTodo = () => {
     navigate(`/edit-todo/${props.id}`, { replace: true });
