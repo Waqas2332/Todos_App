@@ -5,7 +5,7 @@ const Nav = () => {
   const auth = useSelector((state) => state.auth.isAuth);
   const GuestLinks = () => {
     return (
-      <div>
+      <div className="d-flex flex-column flex-xl-row flex-lg-row">
         <li className="nav-item">
           <Link className="nav-link" to="/register">
             Register
@@ -21,7 +21,7 @@ const Nav = () => {
   };
   const AuthLinks = () => {
     return (
-      <div>
+      <div className="d-flex flex-column flex-xl-row flex-lg-row">
         <li className="nav-item">
           <Link className="nav-link" to="/dashboard">
             Dashboard

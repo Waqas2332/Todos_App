@@ -11,8 +11,8 @@ const Landing = () => {
         </div>
         <div>
           <button className="btn btn-primary">
-            <Link to="/welcome" className="text-white text-decoration-none">
-              All Todos
+            <Link to="/register" className="text-white text-decoration-none">
+              Register
             </Link>
           </button>
         </div>

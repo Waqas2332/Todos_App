@@ -65,11 +65,17 @@ exports.signIn = async (req, res, next) => {
 };
 
 exports.getUserData = (req, res, next) => {
+  let imageUrl;
   User.findById(req.userId)
     .then((user) => {
+      if (user.imageUrl) {
+        imageUrl = `http://localhost:3000/${user.imageUrl}`;
+      } else {
+        imageUrl = undefined;
+      }
       const newUser = {
         ...user._doc,
-        imageUrl: `http://localhost:3000/${user.imageUrl}`,
+        imageUrl: imageUrl,
       };
 
       res.status(201).json(newUser);
@@ -90,5 +96,23 @@ exports.postUploadImage = (req, res, next) => {
     })
     .then(() => {
       res.status(201).json({ message: "Image Stored Successfully" });
+    })
+    .catch((err) =>
+      res.status(422).json({ message: "Error in Uploading Image" })
+    );
+};
+
+exports.editUser = (req, res, next) => {
+  const updatedFirstName = req.body.firstName;
+  const updatedLastName = req.body.lastName;
+  const updatedAge = req.body.age;
+  User.findById(req.userId).then((user) => {
+    user.firstName = updatedFirstName;
+    user.lastName = updatedLastName;
+    user.age = updatedAge;
+
+    user.save().then(() => {
+      res.status(201).json({ message: "User Updated Successfully" });
     });
+  });
 };

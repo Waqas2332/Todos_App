@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { login } from "./store/auth-slice";
 import DashBoard from "./pages/DashBoard";
+import EditProfile from "./pages/EditProfile";
 
 const App = () => {
   const dispatch = useDispatch();
@@ -29,6 +30,7 @@ const App = () => {
       <Route path="/all-todos" element={<AllTodos />} />
       <Route path="/edit-todo/:id" element={<EditTodo />} />
       <Route path="/dashboard" element={<DashBoard />} />
+      <Route path="/edit-profile" element={<EditProfile />} />
     </Routes>
   );
 };

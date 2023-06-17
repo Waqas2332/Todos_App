@@ -1,8 +1,10 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-const FileUpload = () => {
+const FileUpload = (props) => {
   const [image, setImage] = useState(null);
+  const navigate = useNavigate();
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     setImage(file);
@@ -19,15 +21,24 @@ const FileUpload = () => {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
       })
-      .then((response) => console.log(response.data));
+      .then((response) => {
+        navigate("/dashboard");
+        console.log(response.data);
+      });
   };
   return (
-    <div>
+    <div className="ms-5 mt-3">
       <div>
-        <h2>Upload Image</h2>
         <form onSubmit={handleSubmit}>
-          <input type="file" accept="image/*" onChange={handleImageUpload} />
-          <button type="submit">Upload</button>
+          <input
+            type="file"
+            accept="image/*"
+            className="d-block"
+            onChange={handleImageUpload}
+          />
+          <button type="submit" className="btn btn-primary mt-3">
+            Upload
+          </button>
         </form>
       </div>
     </div>
